@@ -14,37 +14,33 @@ import com.example.projectlol.Transaction;
 import java.util.List;
 
 public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.TransactionViewHolder> {
+    private List<Transaction> transactions;
 
-    private List<Transaction> transactionList;
-
-    // Конструктор
-    public TransactionAdapter(List<Transaction> transactionList) {
-        this.transactionList = transactionList;
+    public TransactionAdapter(List<Transaction> transactions) {
+        this.transactions = transactions;
     }
 
-    @NonNull
     @Override
-    public TransactionViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public TransactionViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_transaction, parent, false);
         return new TransactionViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull TransactionViewHolder holder, int position) {
-        Transaction transaction = transactionList.get(position);
+    public void onBindViewHolder(TransactionViewHolder holder, int position) {
+        Transaction transaction = transactions.get(position);
         holder.senderNameTextView.setText(transaction.getSenderName());
-        holder.amountTextView.setText("₽" + transaction.getAmount());
+        holder.amountTextView.setText(String.format("Сумма: ₽%.2f", transaction.getAmount()));
         holder.messageTextView.setText(transaction.getMessage());
     }
 
     @Override
     public int getItemCount() {
-        return transactionList.size();
+        return transactions.size();
     }
 
-    // ViewHolder для транзакции
     public static class TransactionViewHolder extends RecyclerView.ViewHolder {
-        TextView senderNameTextView, amountTextView, messageTextView;
+        TextView senderNameTextView, amountTextView, messageTextView, statusTextView;
 
         public TransactionViewHolder(View itemView) {
             super(itemView);

@@ -113,27 +113,31 @@ public class profile extends AppCompatActivity {
                         String senderId = transactionDoc.getString("senderId");
                         String message = transactionDoc.getString("message");
 
-                        // Добавляем транзакцию в список для отображения
-                        transactions.add(new Transaction(senderId, amount, message, isProcessed ? "Обработано" : "Необработано"));
+                        // Получаем имя отправителя
+                        DocumentReference senderRef = db.collection("users").document(senderId);
+                        senderRef.get().addOnSuccessListener(senderDoc -> {
+                            String senderName = senderDoc.getString("name");
 
-                        // Если транзакция необработанная, увеличиваем баланс
-                        if (!isProcessed) {
-                            DocumentReference recipientRef = db.collection("users").document(recipientId);
+                            // Добавляем транзакцию в список для отображения
+                            transactions.add(new Transaction(senderName, amount, message, isProcessed ? "Обработано" : "Необработано"));
 
-                            // Увеличиваем баланс получателя
-                            recipientRef.update("balance", FieldValue.increment(amount))
-                                    .addOnSuccessListener(aVoid -> {
-                                        // Помечаем транзакцию как обработанную
-                                        transactionDoc.getReference().update("processed", true);
-                                    })
-                                    .addOnFailureListener(err -> {
-                                        Toast.makeText(this, "Ошибка обновления баланса: " + err.getMessage(), Toast.LENGTH_SHORT).show();
-                                    });
-                        }
+                            // Если транзакция необработанная, увеличиваем баланс
+                            if (!isProcessed) {
+                                DocumentReference recipientRef = db.collection("users").document(recipientId);
+                                recipientRef.update("balance", FieldValue.increment(amount))
+                                        .addOnSuccessListener(aVoid -> {
+                                            // Помечаем транзакцию как обработанную
+                                            transactionDoc.getReference().update("processed", true);
+                                        })
+                                        .addOnFailureListener(err -> {
+                                            Toast.makeText(this, "Ошибка обновления баланса: " + err.getMessage(), Toast.LENGTH_SHORT).show();
+                                        });
+                            }
+
+                            // Обновляем RecyclerView с транзакциями
+                            updateRecyclerView(transactions);
+                        });
                     }
-
-                    // Обновляем RecyclerView с транзакциями
-                    updateRecyclerView(transactions);
                 });
     }
 
