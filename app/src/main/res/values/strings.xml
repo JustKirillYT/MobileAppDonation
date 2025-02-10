@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">ProjectLol</string>
+    <string name="mainPageText">ShareYourHappiness</string>
+    <string name="reg">Регистрация</string>
+    <string name="SignIn">Войти</string>
+    <string name="or">or</string>
+    <string name="InputYourPassword">Введите пароль</string>
+    <string name="ImputYourEmail">Введите почту</string>
+</resources>

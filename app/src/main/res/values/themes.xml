@@ -1,0 +1,17 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Base.Theme.ProjectLol" parent="Theme.Material3.Light.NoActionBar">
+        <item name="backgroundColor">@color/Tusk</item>
+        <item name="android:windowFullscreen">true</item>
+    </style>
+
+
+    <style name="Base.Theme.ShareYourMainPage" parent="Theme.Material3.Light.NoActionBar">
+        <item name="android:textColor">@color/black</item>
+        <item name="buttonStyle">@style/MainButtonStyle</item>
+    </style>
+
+
+
+    <style name="Theme.ProjectLol" parent="Base.Theme.ProjectLol" >
+    </style>
+</resources>
