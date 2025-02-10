@@ -11,12 +11,17 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class profile extends AppCompatActivity {
 
@@ -83,15 +88,14 @@ public class profile extends AppCompatActivity {
 
         progressBar.setVisibility(View.GONE);
     }
+
     private void syncReceivedFunds() {
         FirebaseAuth auth = FirebaseAuth.getInstance();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-
         String recipientId = auth.getCurrentUser().getUid();
 
         db.collection("transactions")
-                .whereEqualTo("recipientId", recipientId)
-                .whereEqualTo("processed", false) // Только необработанные транзакции
+                .whereEqualTo("recipientId", recipientId) // Получаем все транзакции для пользователя
                 .addSnapshotListener((snapshots, e) -> {
                     if (e != null) {
                         Toast.makeText(this, "Ошибка синхронизации: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -102,20 +106,43 @@ public class profile extends AppCompatActivity {
                         return;
                     }
 
+                    List<Transaction> transactions = new ArrayList<>();
                     for (DocumentSnapshot transactionDoc : snapshots.getDocuments()) {
                         double amount = transactionDoc.getDouble("amount");
+                        boolean isProcessed = transactionDoc.getBoolean("processed");
+                        String senderId = transactionDoc.getString("senderId");
+                        String message = transactionDoc.getString("message");
 
-                        DocumentReference recipientRef = db.collection("users").document(recipientId);
+                        // Добавляем транзакцию в список для отображения
+                        transactions.add(new Transaction(senderId, amount, message, isProcessed ? "Обработано" : "Необработано"));
 
-                        recipientRef.update("balance", FieldValue.increment(amount))
-                                .addOnSuccessListener(aVoid -> {
-                                    transactionDoc.getReference().update("processed", true);
-                                })
-                                .addOnFailureListener(err -> {
-                                    Toast.makeText(this, "Ошибка обновления баланса: " + err.getMessage(), Toast.LENGTH_SHORT).show();
-                                });
+                        // Если транзакция необработанная, увеличиваем баланс
+                        if (!isProcessed) {
+                            DocumentReference recipientRef = db.collection("users").document(recipientId);
+
+                            // Увеличиваем баланс получателя
+                            recipientRef.update("balance", FieldValue.increment(amount))
+                                    .addOnSuccessListener(aVoid -> {
+                                        // Помечаем транзакцию как обработанную
+                                        transactionDoc.getReference().update("processed", true);
+                                    })
+                                    .addOnFailureListener(err -> {
+                                        Toast.makeText(this, "Ошибка обновления баланса: " + err.getMessage(), Toast.LENGTH_SHORT).show();
+                                    });
+                        }
                     }
+
+                    // Обновляем RecyclerView с транзакциями
+                    updateRecyclerView(transactions);
                 });
     }
 
+
+
+    private void updateRecyclerView(List<Transaction> transactions) {
+        RecyclerView recyclerView = findViewById(R.id.transactionsRecyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        TransactionAdapter adapter = new TransactionAdapter(transactions);
+        recyclerView.setAdapter(adapter);
+    }
 }

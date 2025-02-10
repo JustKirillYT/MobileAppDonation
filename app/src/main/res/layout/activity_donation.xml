@@ -8,7 +8,32 @@
     android:background="@color/Tusk"
     tools:context=".donation">
 
+    <LinearLayout
+        android:id="@+id/shapkaRegister"
+        android:layout_width="wrap_content"
+        android:layout_marginEnd="20dp"
+        android:layout_marginStart="20dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/icn_shapkaosnova"
+        android:gravity="center"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="20dp"
+            android:layout_marginStart="20dp"
+            android:layout_gravity="center"
+            android:textAlignment="center"
+            android:maxLines="2"
+            android:text="Персональное пожертвование"
+            android:textSize="36sp"
+            android:textColor="@color/black"
+            android:fontFamily="@font/readexprothree"/>
+    </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -47,6 +72,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/white"
+                android:textColor="@color/black"
+                android:textColorHint="@color/black"
                 style="@style/EmailInputStyle"
                 android:hint="Сумма"
                 android:inputType="numberDecimal" />
